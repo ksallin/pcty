@@ -5,7 +5,10 @@
   },
   "write": {
     "github-usernames": [],
-    "github-team-names": ["TeamCityAgents", "BackstageServiceAccounts"]
+    "github-team-names": [
+      "TeamCityAgents",
+      "BackstageServiceAccounts"
+    ]
   },
   "triage": {
     "github-usernames": [],
@@ -17,6 +20,8 @@
   },
   "pcty-manage": {
     "github-usernames": [],
-    "github-team-names": []
+    "github-team-names": [
+      "data-science"
+    ]
   }
 }
