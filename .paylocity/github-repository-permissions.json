@@ -19,9 +19,9 @@
     "github-team-names": []
   },
   "pcty-manage": {
-    "github-usernames": [],
-    "github-team-names": [
-      "data-science"
-    ]
+    "github-usernames": [
+      "bcai-pcty"
+    ],
+    "github-team-names": ["Data Science"]
   }
 }
