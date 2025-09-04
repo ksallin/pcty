@@ -3,9 +3,9 @@
 #     "Files matching <this file pattern> get automatically reviewed by <this GitHub team>"
 #
 # If you don't specify at least one pattern+team on this repo:
-# - Pull requests will not get approvers automatically assigned. 
+# - Pull requests will not get approvers automatically assigned.
 # - Branch protection policies that require approval by a CODEOWNER will never be satisfied and no pull requests can be merged.
-# 
+#
 # In most cases, this file will be a single line, specifying that everything (*) is reviewed by a single team (@Paylocity/<yourteam>)
 # In some cases (like monorepos), the file will have multiple rows with specific file patterns that, if matched, add the team associated with those file patterns as reviewers on pull requests.
 #
@@ -19,4 +19,4 @@
 # - Team names have to be qualified with the GitHub organization name (i.e., don't just say "sdo" as the team name, say "@Paylocity/sdo")
 # - Team names in this file are GitHub team names, not Active Directory group names (although AD groups and teams may be synced)
 # - Don't forget that the first part of each line is the file matching pattern...you can't just put in team name and be done with it.
-* @Paylocity/data-science
+* @Paylocity/data-science-interview

@@ -43,7 +43,7 @@ ignore = [
 	"PTH123", # `open()` should be replaced by `Path.open()`
 	"DTZ011", # `datetime.date.today()` used
 	"DTZ002", # `datetime.datetime.today()` used
-    
+
 ]
 select = [
     "ALL",
@@ -147,10 +147,9 @@ authors = [
     { name = "Paylocity Data Science Team", email = "pctydatascience@paylocity.com" },
 ]
 dependencies = [
-    "pandas>=1.2.4",
-    "python-dotenv",
-    "pyopenssl>=24.1.0",
-    "pcty_log>=1.1.0"
+    "pandas==2.3.2",
+    "python-dotenv==1.1.1",
+    "scikit-learn==1.7.1"
 ]
 requires-python = ">=3.10"
 readme = "README.md"

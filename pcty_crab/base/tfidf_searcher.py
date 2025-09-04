@@ -1,9 +1,12 @@
-from typing import List, Dict, Optional, Tuple
+import pickle
 import re
+
+from typing import Dict, List, Optional, Tuple
+
 import pandas as pd
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
-import pickle
 
 from pcty_crab.utils.constants import (
     ARTICLES_PICKLE_PATH,
@@ -71,9 +74,16 @@ class TfidfSearcher:
 
     def fit(self, articles: List[Dict[str, str]]) -> "TfidfSearcher":
         """Create the TF-IDF index from a list of article dictionaries."""
-        self.docs = [self._make_doc(a["article_title"], a.get("article_content", "")) for a in articles]
+        self.docs = [
+            self._make_doc(a["article_title"], a.get("article_content", ""))
+            for a in articles
+        ]
         self.meta = [
-            {"idx": i, "article_title": a["article_title"], "article_content": a.get("article_content", "")}
+            {
+                "idx": i,
+                "article_title": a["article_title"],
+                "article_content": a.get("article_content", ""),
+            }
             for i, a in enumerate(articles)
         ]
         self.X = self.vectorizer.fit_transform(self.docs)
@@ -87,12 +97,15 @@ class TfidfSearcher:
         q_vec = self.vectorizer.transform([self._normalize(question)])
         scores = linear_kernel(q_vec, self.X).ravel()
 
-        df = pd.DataFrame({
-            "doc_index": [m["idx"] for m in self.meta],
-            "article_title": [m["article_title"] for m in self.meta],
-            "similarity": scores.astype(float),
-        })
+        df = pd.DataFrame(
+            {
+                "doc_index": [m["idx"] for m in self.meta],
+                "article_title": [m["article_title"] for m in self.meta],
+                "similarity": scores.astype(float),
+            }
+        )
         return df
+
 
 if __name__ == "__main__":
 

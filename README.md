@@ -1,101 +1,56 @@
 pcty_crab
 -------------------------------
-
-[![Package Version](https://img.shields.io/badge/Version-0.1.0-005A9C.svg?style=flat&logo=github)](https://github.com/Paylocity/dst-pcty_crab)
-[![Python](https://img.shields.io/badge/Made%20with-Python-005A9C.svg?style=flat&logo=python)](https://www.python.org/)
-[![Python Requirements](https://img.shields.io/badge/Python-3.7+-005A9C.svg?style=flat&logo)](https://www.python.org/downloads/release/python-360/)
-[![Black](https://img.shields.io/badge/Code%20Style-black-000000.svg)](https://github.com/psf/black)
-
 Challenge: RAG Application with Bugs
 
-View the current release and new features and fixes via the [CHANGELOG.md](https://github.com/Paylocity/dst-pcty_crab/blob/main/CHANGELOG.md).
+# Background
+You are a data scientist developing a chatbot that helps HR practitioners find relevant legislative information
+from a collection of articles. As of now, there is only a search and prompt filtering component.
+When a user submits a question (e.g., "What is the 401K limit for 2025?"), the bot returns the most relevant article
+title from a knowledge base, as long as the question is within scope.
 
-### How to Use the pcty_crab Repo:
-Please add instructions on how to use the package (Feel free to delete if not applicable).
+# Your objective
+Run the `evaluation.py` script to assess the application’s current performance. We suspect that silent bugs in the
+repository are skewing the results. Identify and fix these bugs, rerun the evaluation and report the true performance
+metrics.
 
-Project Structure
----------------
+## Email us back the following deliverables:
+* Repo with code changes
+* A text file with short summary of corrections made and the final metrics
+
+## For discussion during our review session:
+* What improvements would you make to enhance the performance of the existing application?
+* What new features or enhancements would you propose to increase the value of the application?
+* What are some additional metrics to track performance?
+
+# Application overview
+## Step-by-step process
+* Application receives a question
+* Search returns the most relevant article
+* Prompt filtering passes or fails the question based on a set of criteria
+  * If question passes all criteria - return the most relevant article
+  * If question fails at least one criterion - return a fallback response
+
+## Search
+The system calculates a text similarity score between the user’s question and each article in the knowledge base
+and returns the article with the highest similarity score. To improve search relevance, the user's location (state)
+is injected into the search query when available
+
+## Prompt filtering
+To prevent application misuse, the submitted question must then pass two criteria evaluated by an LLM:
+* LAWFULNESS - questions does not seek information to help break the law or perpetuate discriminatory practices
+* SCOPE - question related to government, HR, or company policies
+
+Note: for the purpose of this exercise, we are not actually evaluating the criteria with a LLM. Instead, we have dummy
+function to return a pre-drafted response based on the question. Therefore, any changes to the LLM prompt will not
+impact the response returned.
+
+# Developer Setup
+This application requires the following packages installed in your environment to run:
+* pandas==2.3.2
+* scikit-learn==1.7.1
+* python-dotenv==1.1.1
+
+
 ```
-    $
-    |-- pcty_crab
-    |   |-- data_preperation
-    |   |-- modelling
-    |   |-- monitoring
-    |   |-- plotting
-    |   |-- utils
-    |   |   |-- constants.py
-    |   |   |-- dag_constants.py
-    |   |   |-- file_paths.py
-    |   |   |-- helpers.py
-    |   |-- manifest.yml
-    |   |-- VERSION
-    |-- aws_infrastructure
-    |   |-- AWSDeployment.Dockerfile
-    |   |-- helpers.py
-    |   |-- stack_deploy.sh
-    |-- deployment
-    |   |-- run_scripts
-    |   |   |-- data_prep.py
-    |   |   |-- model_pipeline.py
-    |-- tests
-    |   |-- pcty_crab
-    |   |   |-- test_pcty_crab.py
-    |   |-- conftest.py
-    |-- .bumpversion.cfg
-    |-- .editorconfig
-    |-- .env.example
-    |-- .gitchangelog.rc
-    |-- .gitignore
-    |-- .pre-commit-config.yaml
-    |-- API.Dockerfile
-    |-- catalog-info.yaml
-    |-- CHANGELOG.md
-    |-- Dockerfile
-    |-- Makefile
-    |-- MANIFEST.in
-    |-- pyproject.toml
-    |-- README.md
-    |-- requirement.json
-    |-- setup.py
-    ```
-
-Developer Setup
----------------
-Want to help contribute to the package? Great, let's get started.
-1. Refer to the [Data Science Code Contribution Guidelines wiki](https://paylocity.atlassian.net/wiki/x/ggCjC).
-2. Ensure that the working branch is up-to-date with the main branch.
-3. Ensure make is installed on your machine.
-4. In the terminal run commands to create the _pcty_crab_ conda environment and install dependencies:
-   ```
-   conda activate base
-   make env
-   conda activate pcty_crab
-   make env-init
-   ```
-
-Automated code quality tools
-----------------------------
-Automated code quality tools created to help improving the code quality
-and finding potential bugs. Consulting these tools before submitting the
-merge request can significantly save the time of the developer and
-reviewers.
-
-The workflow might looks like this:
-1. Develop your awesome feature
-2. Run `make lint` to get a list of potential issues including the best effort
-   in auto-fixing the issues
-3. Fix other issues if you find them important, or ignore them. Consult
-   <https://beta.ruff.rs/docs/configuration/#error-suppression> for the
-   ways to ignore the errors using the standard ruff mechanism. In this way
-   ruff will skip those suppressed errors in upcoming checks.
-4. Submit merge request
-```
-Package Release Steps
----------------------
-We fixed / added some stuff. Woohoo! Now what? To release the package [follow these instructions](https://paylocity.atlassian.net/wiki/x/ywCjC).
-
-
-
-
-
-This repo was built with love using the <a href='https://github.com/Paylocity/dst-pcty_spider/'>pcty_spider</a> repo (version 4.4.1).
+This repo was built with love using the <a href='https://github.com/Paylocity/dst-pcty_spider/'>pcty_spider</a>
+repo (version 4.4.1).
