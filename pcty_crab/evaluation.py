@@ -27,19 +27,6 @@ class PerformanceEvaluator:
     def __post_init__(self):
         self.dataset_path = Path(self.dataset_path)
         self.df = pd.read_csv(self.dataset_path)
-
-        required = {
-            "question",
-            "user_background",
-            "expected_response_type",
-            "expected_response",
-        }
-        missing = required - set(self.df.columns)
-        if missing:
-            raise ValueError(
-                f"Dataset missing required columns: {sorted(missing)}"
-            )
-
         self.df["user_background"] = self.df["user_background"].apply(
             lambda x: literal_eval(x)
         )
@@ -85,6 +72,7 @@ class PerformanceEvaluator:
                 self.df["expected_response_type"].eq("negative")
             ),
         }
+        return metrics
 
 
 if __name__ == "__main__":

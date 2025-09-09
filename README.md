@@ -3,10 +3,10 @@ pcty_crab
 Challenge: RAG Application with Bugs
 
 # Background
-You are a data scientist developing a chatbot that helps HR practitioners find relevant legislative information
-from a collection of articles. As of now, there is only a search and prompt filtering component.
+You are a data scientist in early stages of developing a chatbot that helps HR practitioners find relevant legislative
+information from a collection of articles. As of now, there is only a search and prompt filtering component.
 When a user submits a question (e.g., "What is the 401K limit for 2025?"), the bot returns the most relevant article
-title from a knowledge base, as long as the question is within scope.
+title from a knowledge base if the question passes all prompt filtering criteria.
 
 # Your objective
 Run the `evaluation.py` script to assess the application’s current performance. We suspect that silent bugs in the
@@ -36,20 +36,41 @@ and returns the article with the highest similarity score. To improve search rel
 is injected into the search query when available
 
 ## Prompt filtering
-To prevent application misuse, the submitted question must then pass two criteria evaluated by an LLM:
+To prevent application misuse, the submitted question must pass BOTH criteria by an LLM mocker:
 * LAWFULNESS - questions does not seek information to help break the law or perpetuate discriminatory practices
 * SCOPE - question related to government, HR, or company policies
 
-Note: for the purpose of this exercise, we are not actually evaluating the criteria with a LLM. Instead, we have dummy
+Note: for the purpose of this exercise, we are not using an actual LLM to evaluate the criteria. Instead, we have dummy
 function to return a pre-drafted response based on the question. Therefore, any changes to the LLM prompt will not
 impact the response returned.
 
 # Developer Setup
 This application requires the following packages installed in your environment to run:
+* python>=3.9
 * pandas==2.3.2
 * scikit-learn==1.7.1
 * python-dotenv==1.1.1
 
+Project Structure
+---------------
+```
+    |-- README.md                           <- Project overview (you are here)
+    |-- pcty_crab                           <- Main application package
+    |   |-- base                            <- Core application logic
+    |   |   |-- legislative_rag.py          <- Implements pipeline: search + prompt filtering → generates responses
+    |   |   |-- mock_llm_agent.py           <- Mock LLM agent for prompt filtering
+    |   |   |-- tfidf_searcher.py           <- TF-IDF searcher: indexes articles and runs similarity search
+    |   |
+    |   |-- resources                       <- Prebuilt data and test artifacts
+    |   |   |-- articles.pkl                <- Article contents
+    |   |   |-- qa.pkl                      <- Q&A pairs (mock LLM responses)
+    |   |   |-- reference_dataset.csv       <- Evaluation dataset of test questions
+    |   |   |-- searcher.pkl                <- Pre-fitted TF-IDF search object (ready-to-use index)
+    |   |
+    |   |-- utils                           <- Shared constants and configs
+    |   |   |-- constants.py                <- Paths and LLM prompt templates
+    |   |
+    |   |-- evaluation.py                   <- Start here: runs model evaluation on the reference dataset
 
 ```
 This repo was built with love using the <a href='https://github.com/Paylocity/dst-pcty_spider/'>pcty_spider</a>

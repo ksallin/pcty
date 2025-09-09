@@ -20,7 +20,7 @@ class LegislativeRAG:
 
     searcher: TfidfSearcher = field(init=False)
 
-    def __post_init__(self) -> None:
+    def __post_init__(self):
         """Load the pickled TF-IDF searcher into self.searcher."""
         with open(SEARCHER_PICKLE_PATH, "rb") as f:
             self.searcher = pickle.load(f)
