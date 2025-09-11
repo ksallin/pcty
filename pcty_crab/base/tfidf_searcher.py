@@ -1,9 +1,11 @@
-from typing import List, Dict, Optional, Tuple
+from dataclasses import dataclass, field
+import pickle
 import re
+from typing import Dict, List, Optional, Tuple, Any
+
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
-import pickle
 
 from pcty_crab.utils.constants import (
     ARTICLES_PICKLE_PATH,
@@ -11,6 +13,7 @@ from pcty_crab.utils.constants import (
 )
 
 
+@dataclass
 class TfidfSearcher:
     """
     TF-IDF–based searcher that indexes articles and ranks them against a query.
@@ -31,29 +34,30 @@ class TfidfSearcher:
         Number of times to repeat the normalized title text for weighting.
     """
 
-    def __init__(
-        self,
-        ngram_range: Tuple[int, int] = (1, 2),
-        max_df: float = 0.95,
-        min_df: int = 1,
-        max_features: Optional[int] = None,
-        stop_words: Optional[str] = "english",
-        title_weight: int = 3,
-    ) -> None:
-        """Initialize vectorizer configuration and internal state."""
+    ngram_range: Tuple[int, int] = (1, 2)
+    max_df: float = 0.95
+    min_df: int = 1
+    max_features: Optional[int] = None
+    stop_words: Optional[str] = "english"
+    title_weight: int = 3
+
+    # Internal state (excluded from dataclass init/repr)
+    vectorizer: TfidfVectorizer = field(init=False, repr=False)
+    _ws_re: Any = field(init=False, repr=False)
+    docs: List[str] = field(default_factory=list, init=False, repr=False)
+    meta: List[Dict] = field(default_factory=list, init=False, repr=False)
+    article_vectors: Any = field(default=None, init=False, repr=False)
+
+    def __post_init__(self):
         self.vectorizer = TfidfVectorizer(
-            ngram_range=ngram_range,
-            max_df=max_df,
-            min_df=min_df,
-            max_features=max_features,
-            stop_words=stop_words,
-            lowercase=False,  # we normalize explicitly
+            ngram_range=self.ngram_range,
+            max_df=self.max_df,
+            min_df=self.min_df,
+            max_features=self.max_features,
+            stop_words=self.stop_words,
+            lowercase=False,  # explicit normalization
         )
-        self.title_weight = title_weight
         self._ws_re = re.compile(r"\s+")
-        self.docs: List[str] = []
-        self.meta: List[Dict] = []
-        self.X = None
 
     def _normalize(self, text: str) -> str:
         """Lowercase, trim, and collapse whitespace for stable indexing."""
@@ -71,38 +75,45 @@ class TfidfSearcher:
 
     def fit(self, articles: List[Dict[str, str]]) -> "TfidfSearcher":
         """Create the TF-IDF index from a list of article dictionaries."""
-        self.docs = [self._make_doc(a["article_title"], a.get("article_content", "")) for a in articles]
+        self.docs = [
+            self._make_doc(a["article_title"], a.get("article_content", ""))
+            for a in articles
+        ]
         self.meta = [
-            {"idx": i, "article_title": a["article_title"], "article_content": a.get("article_content", "")}
+            {
+                "idx": i,
+                "article_title": a["article_title"],
+                "article_content": a.get("article_content", ""),
+            }
             for i, a in enumerate(articles)
         ]
-        self.X = self.vectorizer.fit_transform(self.docs)
+        self.article_vectors = self.vectorizer.fit_transform(self.docs)
         return self
 
     def search_all(self, question: str) -> pd.DataFrame:
-        """Return similarity scores for all indexed articles"""
-        if not self.docs or self.X is None:
+        """Return similarity scores for all indexed articles."""
+        if not self.docs or self.article_vectors is None:
             raise RuntimeError("Call fit() before search_all().")
 
         q_vec = self.vectorizer.transform([self._normalize(question)])
-        scores = linear_kernel(q_vec, self.X).ravel()
+        scores = linear_kernel(q_vec, self.article_vectors).ravel()
 
-        df = pd.DataFrame({
-            "doc_index": [m["idx"] for m in self.meta],
-            "article_title": [m["article_title"] for m in self.meta],
-            "similarity": scores.astype(float),
-        })
+        df = pd.DataFrame(
+            {
+                "doc_index": [m["idx"] for m in self.meta],
+                "article_title": [m["article_title"] for m in self.meta],
+                "similarity": scores.astype(float),
+            }
+        )
         return df
 
+
 if __name__ == "__main__":
-
-    # Create searcher
-
+    # Create and persist searcher
     with open(ARTICLES_PICKLE_PATH, "rb") as f:
         data = pickle.load(f)
 
-    searcher = TfidfSearcher(title_weight=4)
-    searcher.fit(data)
+    searcher = TfidfSearcher(title_weight=4).fit(data)
 
     with open(SEARCHER_PICKLE_PATH, "wb") as f:
         pickle.dump(searcher, f)
