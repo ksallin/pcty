@@ -95,14 +95,14 @@ class TfidfSearcher:
         if not self.docs or self.article_vectors is None:
             raise RuntimeError("Call fit() before search_all().")
 
-        q_vec = self.vectorizer.transform([self._normalize(question)])
+        q_vec = self.vectorizer.transform([question])
         scores = linear_kernel(q_vec, self.article_vectors).ravel()
 
         df = pd.DataFrame(
             {
                 "doc_index": [m["idx"] for m in self.meta],
                 "article_title": [m["article_title"] for m in self.meta],
-                "similarity": scores.astype(float),
+                "similarity": scores.astype(int),
             }
         )
         return df

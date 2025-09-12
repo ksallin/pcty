@@ -9,6 +9,8 @@ SEARCHER_PICKLE_PATH = RESOURCES_DIR / "searcher.pkl"
 REFERENCE_DATASET_PATH = RESOURCES_DIR / "reference_dataset.csv"
 LLM_REFERENCE_PATH = RESOURCES_DIR / "qa.pkl"
 
+# Vendor
+VENDOR = "PCTY"
 # Prompts
 PROMPTS = {
     "PCTY": """

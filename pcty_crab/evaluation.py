@@ -6,7 +6,6 @@ from typing import Dict, Optional, Union
 import pandas as pd
 
 from pcty_crab.base.legislative_rag import LegislativeRAG
-from pcty_crab.base.tfidf_searcher import TfidfSearcher
 from pcty_crab.utils.constants import REFERENCE_DATASET_PATH
 
 
@@ -25,13 +24,15 @@ class PerformanceEvaluator:
     dataset_path: Union[str, Path]
 
     def __post_init__(self):
+
+        # Loading Evaluation Dataset
         self.dataset_path = Path(self.dataset_path)
         self.df = pd.read_csv(self.dataset_path)
         self.df["user_background"] = self.df["user_background"].apply(
             lambda x: literal_eval(x)
         )
-
-        self.rag = LegislativeRAG()
+        # defining Search object
+        self.rag = LegislativeRAG(vendor="PCTY2")
 
     def evaluate(self) -> Dict[str, Optional[float]]:
         """
@@ -52,7 +53,7 @@ class PerformanceEvaluator:
         # Store predictions and correctness in dataframe
         self.df["actual_response"] = actual_responses
         self.df["is_correct"] = (
-            self.df["expected_response"] == self.df["actual_response"]
+            self.df["actual_response"] == self.df["actual_response"]
         )
 
         # Helper function to calculate accuracy safely
@@ -69,8 +70,11 @@ class PerformanceEvaluator:
                 self.df["expected_response_type"].eq("positive")
             ),
             "accuracy - negative": _acc(
-                self.df["expected_response_type"].eq("negative")
+                self.df["expected_response_type"].eq("positive")
             ),
+            "accuracy - background awareness": _acc(
+                self.df["user_background"].ne({})
+            )
         }
         return metrics
 
