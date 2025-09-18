@@ -6,6 +6,7 @@ from typing import Dict, Optional, Union
 import pandas as pd
 
 from pcty_crab.base.legislative_rag import LegislativeRAG
+from pcty_crab.base.tfidf_searcher import TfidfSearcher
 from pcty_crab.utils.constants import REFERENCE_DATASET_PATH
 
 

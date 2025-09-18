@@ -6,8 +6,7 @@ Challenge: RAG Application with Bugs
 You are a data scientist in early stages of developing a chatbot that helps HR practitioners find relevant legislative
 information from a collection of articles. As of now, there is only a search and prompt filtering component.
 When a user submits a question (e.g., "What is the 401K limit for 2025?"), the bot returns the most relevant article
-title from a knowledge base if the question passes all prompt filtering criteria. The Vendor to be used and the prompt
-filtering criteria are defined in constants.py.
+title from a knowledge base if the question passes all prompt filtering criteria.
 
 # Your objective
 Run the `evaluation.py` script to assess the application’s current performance. We suspect that silent bugs in the
@@ -42,15 +41,14 @@ To prevent application misuse, the submitted question must pass BOTH criteria by
 * SCOPE - question related to government, HR, or company policies
 
 Note: for the purpose of this exercise, we are not using an actual LLM to evaluate the criteria. Instead, we have dummy
-function to return a pre-drafted response based on the question. Therefore, any changes to the LLM prompt will not
-impact the response returned.
+function to return a pre-drafted response based on the question and vendor name. Therefore, any changes
+to the LLM prompt will not impact the response returned.
 
 # Developer Setup
 This application requires the following packages installed in your environment to run:
 * python>=3.9
 * pandas==2.3.2
 * scikit-learn==1.7.1
-* python-dotenv==1.1.1
 
 Project Structure
 ---------------
