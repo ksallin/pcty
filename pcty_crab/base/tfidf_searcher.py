@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 import pickle
 import re
 from typing import Dict, List, Optional, Tuple, Any
-
+import logging
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
@@ -12,6 +12,8 @@ from pcty_crab.utils.constants import (
     SEARCHER_PICKLE_PATH,
 )
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @dataclass
 class TfidfSearcher:
@@ -49,32 +51,55 @@ class TfidfSearcher:
     article_vectors: Any = field(default=None, init=False, repr=False)
 
     def __post_init__(self):
-        self.vectorizer = TfidfVectorizer(
-            ngram_range=self.ngram_range,
-            max_df=self.max_df,
-            min_df=self.min_df,
-            max_features=self.max_features,
-            stop_words=self.stop_words,
-            lowercase=False,  # explicit normalization
-        )
-        self._ws_re = re.compile(r"\s+")
+        # Improve: Add try/catch, logging and input validation
+        try:
+            self.vectorizer = TfidfVectorizer(
+                ngram_range=self.ngram_range,
+                max_df=self.max_df,
+                min_df=self.min_df,
+                max_features=self.max_features,
+                stop_words=self.stop_words,
+                lowercase=False,  # explicit normalization
+            )
+            self._ws_re = re.compile(r"\s+")
+            logger.info("TfidfSearcher initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize TfidfSearcher: {e}")
+            raise
 
     def _normalize(self, text: str) -> str:
         """Lowercase, trim, and collapse whitespace for stable indexing."""
         if not text:
             return ""
-        text = text.lower().strip()
-        return self._ws_re.sub(" ", text)
+        try:
+            text = text.lower().strip()
+            return self._ws_re.sub(" ", text)
+        except Exception as e:
+            logger.warning(f"Text normalization failed: {e}")
+            return str(text) if text else ""
+
 
     def _make_doc(self, title: str, content: str) -> str:
         """Build a weighted document string by boosting title and appending content."""
-        t = self._normalize(title)
-        c = self._normalize(content or "")
-        boosted_title = (" " + t) * self.title_weight
-        return (t + boosted_title + " " + c).strip()
+        try:
+            t = self._normalize(title)
+            c = self._normalize(content or "")
+            boosted_title = (" " + t) * self.title_weight
+            return (t + boosted_title + " " + c).strip()
+        except Exception as e:
+            logger.warning(f"Document creation failed for title '{title}': {e}")
+            return "empty_document"
 
     def fit(self, articles: List[Dict[str, str]]) -> "TfidfSearcher":
         """Create the TF-IDF index from a list of article dictionaries."""
+        if not articles:
+            logger.error("Cannot fit on empty article list")
+            raise ValueError("Article list cannot be empty")
+
+        if not isinstance(articles, list):
+            logger.error(f"Articles must be a list, got {type(articles)}")
+            raise TypeError("Articles must be a list of dictionaries")
+
         self.docs = [
             self._make_doc(a["article_title"], a.get("article_content", ""))
             for a in articles
@@ -92,17 +117,31 @@ class TfidfSearcher:
 
     def search_all(self, question: str) -> pd.DataFrame:
         """Return similarity scores for all indexed articles."""
+        if not question:
+            logger.warning("Empty question provided to search")
+            return "No questions input"
+
+        if not isinstance(question, str):
+            logger.warning(f"Question must be string, got {type(question)}")
+            return "Question must be a string"
+
         if not self.docs or self.article_vectors is None:
             raise RuntimeError("Call fit() before search_all().")
 
-        q_vec = self.vectorizer.transform([question])
+        #improve: normalize question
+        normalized_query = self._normalize(question)
+        logger.info(f"Searching with normalized query: '{normalized_query}'")
+
+        q_vec = self.vectorizer.transform([normalized_query])
         scores = linear_kernel(q_vec, self.article_vectors).ravel()
 
         df = pd.DataFrame(
             {
                 "doc_index": [m["idx"] for m in self.meta],
                 "article_title": [m["article_title"] for m in self.meta],
-                "similarity": scores.astype(int),
+                #Bug score is always 0, due to change to int
+                # "similarity": scores.astype(int),
+                "similarity": scores.astype(float),
             }
         )
         return df
