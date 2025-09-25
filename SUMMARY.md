@@ -19,11 +19,11 @@
    query = question + background_info.get("state", "")
    ```
 which produced no spacing and confused tokenization. Updated to a more robust approach.
-3. **evaluation.py: Replaced python ```self.df["user_background"].ne({}) ``` with python ```self.df["user_background"].apply(lambda x: len(x) > 0)``` to ensure background data actually exists.
-4. legislative_rag.py: Added logging and try/except handling to improve error resilience and prevent crashes.
-5. tfidf_searcher.py: Added logging and input validation to handle null values or invalid inputs gracefully.
-6. mock_llm_agent.py: Added logging, try/except, and input validation to address silent failures.
-7. tfidf_searcher.py: Normalized 'questions' before processing for more consistent results.
+3. **evaluation.py**: Replaced python ```self.df["user_background"].ne({}) ``` with python ```self.df["user_background"].apply(lambda x: len(x) > 0)``` to ensure background data actually exists.
+4. **legislative_rag.py**: Added logging and try/except handling to improve error resilience and prevent crashes.
+5. **tfidf_searcher.py**: Added logging and input validation to handle null values or invalid inputs gracefully.
+6. **mock_llm_agent.py**: Added logging, try/except, and input validation to address silent failures.
+7. **tfidf_searcher.py**: Normalized 'questions' before processing for more consistent results.
 
 ## Metrics
 
