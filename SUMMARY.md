@@ -27,7 +27,7 @@ which produced no spacing and confused tokenization. Updated to a more robust ap
 
 ## Metrics
 
-Output of application includes precision, recall, and F1 score at *k*th retrieval.
+Output of application includes accuracy, precision, recall, and F1 score at *k*th retrieval.
 Results:
 
 ```json
