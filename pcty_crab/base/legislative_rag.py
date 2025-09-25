@@ -104,6 +104,7 @@ class LegislativeRAG:
                 background_info = {}
             try:
                 #Bug: fix change "slate" -> "state"
+                #improve: use secure concate method
                 state = background_info.get("state", "")
                 if state and isinstance(state, str):
                     query = f"{question} {state}".strip()
